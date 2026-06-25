@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 我的旅行游记</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <!-- 地图容器 -->
+    <div id="map"></div>
+
+    <!-- 侧边栏 -->
+    <aside id="sidebar">
+        <div id="sidebar-header">
+            <h1>🌍 我的旅行游记</h1>
+            <p>点击地图添加你的旅行记忆</p>
+        </div>
+
+        <!-- 地点列表 -->
+        <div id="location-list">
+            <div id="list-header">
+                <span>📍 已标记地点</span>
+                <span id="location-count">0</span>
+            </div>
+            <div id="list-items"></div>
+            <div id="empty-hint">
+                <div class="empty-icon">🗺️</div>
+                <p>还没有标记任何地点</p>
+                <p>点击地图开始记录你的旅程吧！</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 地点详情面板（浮层） -->
+    <div id="detail-panel" class="hidden">
+        <div id="panel-overlay"></div>
+        <div id="panel-content">
+            <button id="panel-close" title="关闭">&times;</button>
+            <h2 id="panel-title">新增旅行记忆</h2>
+
+            <form id="entry-form">
+                <div class="form-group">
+                    <label for="entry-title">📍 地点名称</label>
+                    <input type="text" id="entry-title" placeholder="给这个地点起个名字..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="entry-date">📅 日期</label>
+                    <input type="date" id="entry-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="entry-description">📝 旅行故事</label>
+                    <textarea id="entry-description" rows="5" placeholder="在这里写下你的旅行经历..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>📷 照片</label>
+                    <div id="photo-area">
+                        <div id="photo-preview" class="photo-grid"></div>
+                        <label for="photo-input" class="photo-add-btn">
+                            <span>+</span>
+                            <span>添加照片</span>
+                        </label>
+                        <input type="file" id="photo-input" accept="image/*" multiple hidden>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="btn-delete" class="btn-danger hidden">🗑️ 删除此地</button>
+                    <button type="submit" id="btn-save" class="btn-primary">💾 保存记忆</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
