@@ -94,7 +94,17 @@ function initMap() {
         '🛰️ 卫星影像': satLayer,
         '🏔️ 地形图': topoLayer
     };
-    L.control.layers(baseMaps, null, { position: 'topright', collapsed: false }).addTo(map);
+    L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
+
+    // 删除可能重复的图层控件（只保留第一个）
+    setTimeout(function () {
+        var allCtrls = document.querySelectorAll('.leaflet-control-layers');
+        if (allCtrls.length > 1) {
+            for (var i = 1; i < allCtrls.length; i++) {
+                allCtrls[i].remove();
+            }
+        }
+    }, 200);
     L.control.layers(baseMaps, null, { position: 'topright', collapsed: false }).addTo(map);
 
     map.on('click', function (e) {
