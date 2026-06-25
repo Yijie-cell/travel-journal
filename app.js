@@ -94,7 +94,7 @@ function initMap() {
         '🛰️ 卫星影像': satLayer,
         '🏔️ 地形图': topoLayer
     };
-    L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
+    L.control.layers(baseMaps, null, { position: 'topright', collapsed: false }).addTo(map);
     L.control.layers(baseMaps, null, { position: 'topright', collapsed: false }).addTo(map);
 
     map.on('click', function (e) {
