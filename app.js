@@ -79,17 +79,19 @@ function initMap() {
         attribution: '&copy; ESRI',
     });
 
-    // 地形图 (OpenTopoMap - 免费精细等高线)
-    var topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        maxZoom: 17,
-        attribution: '&copy; OpenTopoMap',
+    // 山体阴影 (ESRI - 地形起伏)
+    var hillLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18,
+        maxNativeZoom: 13,
+        attribution: '&copy; ESRI',
     });
 
-    // 卫星 + 等高线叠加
-    var satContour = L.layerGroup([
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18 }),
-        L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, opacity: 0.45 }),
-    ]);
+    // 地形图 (ESRI World Topo)
+    var topoLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 18,
+        maxNativeZoom: 16,
+        attribution: '&copy; ESRI',
+    });
 
     stdLayer.addTo(map);
 
@@ -97,8 +99,8 @@ function initMap() {
     var baseMaps = {
         '🗺️ 标准地图': stdLayer,
         '🛰️ 卫星影像': satLayer,
-        '⛰️ 地形图': topoLayer,
-        '🧭 卫星+等高线': satContour
+        '⛰️ 山体阴影': hillLayer,
+        '🏔️ 地形图': topoLayer
     };
     L.control.layers(baseMaps, null, { position: 'topright', collapsed: false }).addTo(map);
 
