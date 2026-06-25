@@ -600,6 +600,43 @@ body {
     }
 }
 
+/* ===== 图层切换控件样式 ===== */
+.leaflet-control-layers {
+    border-radius: 12px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(10px);
+}
+
+.leaflet-control-layers-expanded {
+    padding: 8px 12px !important;
+}
+
+.leaflet-control-layers-selector {
+    accent-color: var(--primary);
+    margin-right: 6px !important;
+}
+
+.leaflet-control-layers label {
+    font-size: 13px !important;
+    font-weight: 500;
+    color: var(--text);
+    padding: 4px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.leaflet-control-layers label:hover {
+    color: var(--primary);
+}
+
+.leaflet-control-layers-separator {
+    display: none;
+}
+
 /* ===== 响应式 ===== */
 @media (max-width: 768px) {
     #sidebar {

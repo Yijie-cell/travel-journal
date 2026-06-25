@@ -63,12 +63,49 @@ function initMap() {
         attributionControl: true,
     });
 
-    L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+    // 高德地图瓦片基础 URL
+    const amapURL = 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&x={x}&y={y}&z={z}';
+    const amapOpts = {
         subdomains: ['1', '2', '3', '4'],
-        attribution: '&copy; 高德地图',
         maxZoom: 18,
         referrerPolicy: 'no-referrer',
-    }).addTo(map);
+    };
+
+    // 标准地图
+    const stdLayer = L.tileLayer(amapURL + '&style=8', {
+        ...amapOpts,
+        attribution: '&copy; 高德地图',
+    });
+
+    // 卫星影像
+    const satLayer = L.tileLayer(amapURL + '&style=6', {
+        ...amapOpts,
+        attribution: '&copy; 高德卫星',
+    });
+
+    // 卫星 + 路网标注（叠加透明路网层）
+    const satRoadGroup = L.layerGroup([
+        L.tileLayer(amapURL + '&style=6', { ...amapOpts }),
+        L.tileLayer(amapURL + '&style=8', { ...amapOpts, opacity: 0.5 }),
+    ]);
+
+    // 暗色主题（CartoDB Dark Matter - 备用）
+    const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: ['a', 'b', 'c', 'd'],
+        attribution: '&copy; CartoDB',
+        maxZoom: 19,
+    });
+
+    stdLayer.addTo(map);
+
+    // 图层切换控件
+    const baseMaps = {
+        '🗺️ 标准地图': stdLayer,
+        '🛰️ 卫星影像': satLayer,
+        '📍 卫星+路网': satRoadGroup,
+        '🌙 暗色主题': darkLayer,
+    };
+    L.control.layers(baseMaps, null, { position: 'topleft', collapsed: false }).addTo(map);
 
     map.on('click', function (e) {
         openNewEntry(e.latlng);
