@@ -110,8 +110,8 @@ body {
 /* 面板展开按钮 */
 #sidebar-toggle {
     position: absolute;
-    top: 24px;
-    left: 24px;
+    top: 90px;
+    left: 20px;
     width: 44px;
     height: 44px;
     border: none;
