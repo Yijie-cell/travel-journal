@@ -73,25 +73,10 @@ function initMap() {
         attribution: '&copy; 高德地图',
     });
 
-    // 卫星影像
-    var satLayer = L.tileLayer(amapURL + '&style=6', {
-        subdomains: amapSub,
+    // 卫星影像 (ESRI - 全球免费卫星图)
+    var satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 18,
-        attribution: '&copy; 高德卫星',
-    });
-
-    // 暗色主题
-    var darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
-        maxZoom: 19,
-        attribution: '&copy; CartoDB',
-    });
-
-    // 浅色主题
-    var lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
-        maxZoom: 19,
-        attribution: '&copy; CartoDB',
+        attribution: '&copy; ESRI',
     });
 
     stdLayer.addTo(map);
@@ -99,9 +84,7 @@ function initMap() {
     // 图层切换控件
     var baseMaps = {
         '🗺️ 标准地图': stdLayer,
-        '🛰️ 卫星影像': satLayer,
-        '🌙 暗色主题': darkLayer,
-        '☀️ 浅色主题': lightLayer
+        '🛰️ 卫星影像': satLayer
     };
     L.control.layers(baseMaps, null, { position: 'topright', collapsed: false }).addTo(map);
 
