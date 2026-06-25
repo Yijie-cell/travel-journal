@@ -103,7 +103,7 @@ function initMap() {
         '🌙 暗色主题': darkLayer,
         '☀️ 浅色主题': lightLayer
     };
-    L.control.layers(baseMaps, null, { position: 'topleft', collapsed: false }).addTo(map);
+    L.control.layers(baseMaps, null, { position: 'topright', collapsed: false }).addTo(map);
 
     map.on('click', function (e) {
         openNewEntry(e.latlng);
