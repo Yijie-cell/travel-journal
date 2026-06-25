@@ -79,13 +79,6 @@ function initMap() {
         attribution: '&copy; ESRI',
     });
 
-    // 山体阴影 (ESRI - 地形起伏)
-    var hillLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 18,
-        maxNativeZoom: 13,
-        attribution: '&copy; ESRI',
-    });
-
     // 地形图 (ESRI World Topo)
     var topoLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 18,
@@ -99,9 +92,9 @@ function initMap() {
     var baseMaps = {
         '🗺️ 标准地图': stdLayer,
         '🛰️ 卫星影像': satLayer,
-        '⛰️ 山体阴影': hillLayer,
         '🏔️ 地形图': topoLayer
     };
+    L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
     L.control.layers(baseMaps, null, { position: 'topright', collapsed: false }).addTo(map);
 
     map.on('click', function (e) {
