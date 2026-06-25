@@ -82,13 +82,14 @@ function initMap() {
     // 地形图 (ESRI World Topo - 含等高线)
     var topoLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 18,
+        maxNativeZoom: 16,
         attribution: '&copy; ESRI',
     });
 
     // 卫星 + 等高线叠加
     var satContour = L.layerGroup([
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18 }),
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, opacity: 0.35 }),
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, maxNativeZoom: 13, opacity: 0.35 }),
     ]);
 
     stdLayer.addTo(map);
