@@ -63,47 +63,45 @@ function initMap() {
         attributionControl: true,
     });
 
-    // 高德地图瓦片基础 URL
-    const amapURL = 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&x={x}&y={y}&z={z}';
-    const amapOpts = {
-        subdomains: ['1', '2', '3', '4'],
-        maxZoom: 18,
-        referrerPolicy: 'no-referrer',
-    };
+    var amapURL = 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&x={x}&y={y}&z={z}';
+    var amapSub = ['1', '2', '3', '4'];
 
     // 标准地图
-    const stdLayer = L.tileLayer(amapURL + '&style=8', {
-        ...amapOpts,
+    var stdLayer = L.tileLayer(amapURL + '&style=8', {
+        subdomains: amapSub,
+        maxZoom: 18,
         attribution: '&copy; 高德地图',
     });
 
     // 卫星影像
-    const satLayer = L.tileLayer(amapURL + '&style=6', {
-        ...amapOpts,
+    var satLayer = L.tileLayer(amapURL + '&style=6', {
+        subdomains: amapSub,
+        maxZoom: 18,
         attribution: '&copy; 高德卫星',
     });
 
-    // 卫星 + 路网标注（叠加透明路网层）
-    const satRoadGroup = L.layerGroup([
-        L.tileLayer(amapURL + '&style=6', { ...amapOpts }),
-        L.tileLayer(amapURL + '&style=8', { ...amapOpts, opacity: 0.5 }),
-    ]);
-
-    // 暗色主题（CartoDB Dark Matter - 备用）
-    const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        subdomains: ['a', 'b', 'c', 'd'],
-        attribution: '&copy; CartoDB',
+    // 暗色主题
+    var darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
         maxZoom: 19,
+        attribution: '&copy; CartoDB',
+    });
+
+    // 浅色主题
+    var lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 19,
+        attribution: '&copy; CartoDB',
     });
 
     stdLayer.addTo(map);
 
     // 图层切换控件
-    const baseMaps = {
+    var baseMaps = {
         '🗺️ 标准地图': stdLayer,
         '🛰️ 卫星影像': satLayer,
-        '📍 卫星+路网': satRoadGroup,
         '🌙 暗色主题': darkLayer,
+        '☀️ 浅色主题': lightLayer
     };
     L.control.layers(baseMaps, null, { position: 'topleft', collapsed: false }).addTo(map);
 
