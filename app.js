@@ -79,17 +79,16 @@ function initMap() {
         attribution: '&copy; ESRI',
     });
 
-    // 地形图 (ESRI World Topo - 含等高线)
-    var topoLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 18,
-        maxNativeZoom: 16,
-        attribution: '&copy; ESRI',
+    // 地形图 (OpenTopoMap - 免费精细等高线)
+    var topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        attribution: '&copy; OpenTopoMap',
     });
 
     // 卫星 + 等高线叠加
     var satContour = L.layerGroup([
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18 }),
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, maxNativeZoom: 13, opacity: 0.35 }),
+        L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, opacity: 0.45 }),
     ]);
 
     stdLayer.addTo(map);
