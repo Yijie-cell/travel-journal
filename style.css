@@ -76,6 +76,64 @@ body {
     transition: transform var(--transition), opacity var(--transition);
 }
 
+#sidebar.collapsed {
+    transform: translateX(-420px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 侧边栏关闭按钮 */
+#sidebar-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 50%;
+    font-size: 16px;
+    color: var(--text-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    z-index: 10;
+}
+
+#sidebar-close:hover {
+    background: rgba(0, 0, 0, 0.15);
+    color: var(--text);
+}
+
+/* 面板展开按钮 */
+#sidebar-toggle {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-sm);
+    font-size: 22px;
+    cursor: pointer;
+    z-index: 1000;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+#sidebar-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: var(--shadow-lg);
+}
+
+#sidebar-toggle.hidden {
+    display: none;
+}
+
 #sidebar-header {
     padding: 24px 24px 16px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);

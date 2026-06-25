@@ -531,6 +531,18 @@ function renderList() {
 
 // ===== 事件绑定 =====
 function bindEvents() {
+    // 侧边栏折叠/展开
+    var $sidebar = document.getElementById('sidebar');
+    var $sidebarToggle = document.getElementById('sidebar-toggle');
+    document.getElementById('sidebar-close').addEventListener('click', function () {
+        $sidebar.classList.add('collapsed');
+        $sidebarToggle.classList.remove('hidden');
+    });
+    $sidebarToggle.addEventListener('click', function () {
+        $sidebar.classList.remove('collapsed');
+        $sidebarToggle.classList.add('hidden');
+    });
+
     $panelClose.addEventListener('click', hidePanel);
     $panelOverlay.addEventListener('click', hidePanel);
     $entryForm.addEventListener('submit', saveEntry);
