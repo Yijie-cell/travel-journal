@@ -700,6 +700,11 @@ body {
     display: none !important;
 }
 
+/* 确保只有一个图层控件，移除可能的重复 */
+.leaflet-control-layers ~ .leaflet-control-layers {
+    display: none !important;
+}
+
 /* ===== 响应式 ===== */
 @media (max-width: 768px) {
     #sidebar {
