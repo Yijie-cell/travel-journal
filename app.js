@@ -27,6 +27,7 @@ function getDB() {
 let map;
 let markers = {};
 let entries = {};
+let markersVisible = true;
 let currentEntryId = null;
 let pendingLatLng = null;
 
@@ -94,18 +95,30 @@ function initMap() {
         '🛰️ 卫星影像': satLayer,
         '🏔️ 地形图': topoLayer
     };
-    L.control.layers(baseMaps, null, { position: 'topright', collapsed: true }).addTo(map);
-
-    // 删除可能重复的图层控件（只保留第一个）
-    setTimeout(function () {
-        var allCtrls = document.querySelectorAll('.leaflet-control-layers');
-        if (allCtrls.length > 1) {
-            for (var i = 1; i < allCtrls.length; i++) {
-                allCtrls[i].remove();
-            }
-        }
-    }, 200);
     L.control.layers(baseMaps, null, { position: 'topright', collapsed: false }).addTo(map);
+
+    // 标记点显示/隐藏切换按钮
+    var toggleBtn = L.control({ position: 'topright' });
+    toggleBtn.onAdd = function () {
+        var div = L.DomUtil.create('div', 'marker-toggle-btn');
+        div.innerHTML = '📍';
+        div.title = '隐藏标记点';
+        div.onclick = function (e) {
+            e.stopPropagation();
+            markersVisible = !markersVisible;
+            for (var id in markers) {
+                if (markersVisible) {
+                    map.addLayer(markers[id]);
+                } else {
+                    map.removeLayer(markers[id]);
+                }
+            }
+            div.innerHTML = markersVisible ? '📍' : '📍';
+            div.style.opacity = markersVisible ? '1' : '0.4';
+        };
+        return div;
+    };
+    toggleBtn.addTo(map);
 
     map.on('click', function (e) {
         openNewEntry(e.latlng);
@@ -235,7 +248,10 @@ function addMarkerToMap(id, entry) {
         popupAnchor: [0, -36],
     });
 
-    const marker = L.marker(latlng, { icon }).addTo(map);
+    const marker = L.marker(latlng, { icon });
+    if (markersVisible) {
+        marker.addTo(map);
+    }
 
     const photos = entry.photos || [];
     const firstPhoto = photos.length > 0 ? photos[0] : null;

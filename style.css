@@ -695,6 +695,26 @@ body {
     display: none;
 }
 
+/* 标记点显示/隐藏按钮 */
+.marker-toggle-btn {
+    width: 34px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 10px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    margin-top: 8px;
+    transition: opacity 0.2s;
+}
+.marker-toggle-btn:hover {
+    background: #fff;
+}
+
 /* 隐藏多余的 Layers 切换按钮，只保留单选列表 */
 .leaflet-control-layers-toggle {
     display: none !important;
