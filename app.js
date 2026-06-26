@@ -28,6 +28,7 @@ let map;
 let markers = {};
 let entries = {};
 let markersVisible = true;
+let elevationMode = false;   // 海拔查询模式
 let currentEntryId = null;
 let pendingLatLng = null;
 
@@ -123,9 +124,55 @@ function initMap() {
     // 比例尺（右下角）
     L.control.scale({ position: 'bottomright', metric: true, imperial: false }).addTo(map);
 
+    // 模式切换按钮（游记 / 海拔查询）
+    var modeBtn = L.control({ position: 'topright' });
+    modeBtn.onAdd = function () {
+        var div = L.DomUtil.create('div', 'marker-toggle-btn');
+        div.innerHTML = '📝';
+        div.title = '当前：游记模式 — 点击切换为海拔查询';
+        div.style.marginTop = '0';
+        div.onclick = function (e) {
+            e.stopPropagation();
+            elevationMode = !elevationMode;
+            div.innerHTML = elevationMode ? '⛰️' : '📝';
+            div.title = elevationMode ? '当前：海拔查询 — 点击地图查看高度' : '当前：游记模式 — 点击地图添加记忆';
+            div.style.background = elevationMode ? 'rgba(78,205,196,0.25)' : '';
+        };
+        return div;
+    };
+    modeBtn.addTo(map);
+
     map.on('click', function (e) {
-        openNewEntry(e.latlng);
+        if (elevationMode) {
+            queryElevation(e.latlng);
+        } else {
+            openNewEntry(e.latlng);
+        }
     });
+
+    // 海拔查询函数
+    function queryElevation(latlng) {
+        var popup = L.popup().setLatLng(latlng).setContent('<em>⏳ 查询中...</em>').openOn(map);
+        fetch('https://api.open-elevation.com/api/v1/lookup?locations=' + latlng.lat + ',' + latlng.lng)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var elev = data.results && data.results[0] ? data.results[0].elevation : null;
+                if (elev !== null) {
+                    popup.setContent(
+                        '<div style="text-align:center;padding:4px 0">' +
+                        '<div style="font-size:28px;font-weight:700;color:#ff6b6b">' + Math.round(elev) + ' m</div>' +
+                        '<div style="font-size:11px;color:#888">海拔高度</div>' +
+                        '<div style="font-size:10px;color:#bbb;margin-top:4px">' + latlng.lat.toFixed(5) + ', ' + latlng.lng.toFixed(5) + '</div>' +
+                        '</div>'
+                    );
+                } else {
+                    popup.setContent('<em>❌ 未获取到海拔数据</em>');
+                }
+            })
+            .catch(function () {
+                popup.setContent('<em>❌ 查询失败，请重试</em>');
+            });
+    }
 }
 
 // ===== 数据管理（Supabase） =====
