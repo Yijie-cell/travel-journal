@@ -29,7 +29,7 @@ let markers = {};
 let entries = {};
 let layers = [];
 let activeLayer = '';
-let markersVisible = false;  // 默认隐藏标记点
+let markersVisible = true;   // 默认显示标记点
 let elevationMode = false;
 let currentEntryId = null;
 let pendingLatLng = null;
@@ -71,15 +71,10 @@ const $panelOverlay = document.getElementById('panel-overlay');
 function init() {
     loadLayers(); loadActiveLayer();
     // 确保默认图层始终可见
-    if (layers.length > 0 && !layers[0].visible) {
-        layers[0].visible = true;
-        saveLayers();
-    }
+    if (layers.length > 0) { layers[0].visible = true; saveLayers(); }
     initMap();
     loadEntries();
     bindEvents();
-    document.getElementById('sidebar').classList.add('collapsed');
-    document.getElementById('sidebar-toggle').classList.remove('hidden');
 }
 
 // ===== 地图初始化 =====
