@@ -70,6 +70,11 @@ const $panelOverlay = document.getElementById('panel-overlay');
 // ===== 初始化 =====
 function init() {
     loadLayers(); loadActiveLayer();
+    // 确保默认图层始终可见
+    if (layers.length > 0 && !layers[0].visible) {
+        layers[0].visible = true;
+        saveLayers();
+    }
     initMap();
     loadEntries();
     bindEvents();
