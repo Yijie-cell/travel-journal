@@ -124,13 +124,13 @@ function initMap() {
     toggleBtn.onAdd = function () {
         var div = L.DomUtil.create('div', 'marker-toggle-btn');
         div.innerHTML = '📍';
-        div.title = '显示标记点';
-        div.style.opacity = '0.4';
+        div.title = '隐藏标记点';
+        div.style.opacity = '1';
         div.onclick = function (e) {
             e.stopPropagation();
             markersVisible = !markersVisible;
             refreshAllMarkers();
-            div.innerHTML = markersVisible ? '📍' : '📍';
+            div.title = markersVisible ? '隐藏标记点' : '显示标记点';
             div.style.opacity = markersVisible ? '1' : '0.4';
         };
         return div;
