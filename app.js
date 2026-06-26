@@ -27,10 +27,29 @@ function getDB() {
 let map;
 let markers = {};
 let entries = {};
+let layers = [];
+let activeLayer = '';
+let activeLayer = '';
 let markersVisible = false;  // 默认隐藏标记点
 let elevationMode = false;
 let currentEntryId = null;
 let pendingLatLng = null;
+
+// ===== 图层管理（localStorage） =====
+function loadLayers() {
+    try { layers = JSON.parse(localStorage.getItem('travel_journal_layers')); } catch (e) {}
+    if (!layers || layers.length === 0) { layers = [{ name: '我的游记', visible: true }]; }
+}
+function saveLayers() { localStorage.setItem('travel_journal_layers', JSON.stringify(layers)); }
+function loadActiveLayer() {
+    activeLayer = localStorage.getItem('active_layer');
+    if (!activeLayer || !layers.find(l => l.name === activeLayer)) { activeLayer = layers[0].name; }
+}
+function saveActiveLayer() { localStorage.setItem('active_layer', activeLayer); }
+function getVisibleLayerNames() { return layers.filter(l => l.visible).map(l => l.name); }
+function addLayer(name) { if (layers.find(l => l.name === name)) return false; layers.push({ name: name, visible: true }); saveLayers(); return true; }
+function deleteLayer(name) { if (layers.length <= 1) return false; layers = layers.filter(l => l.name !== name); saveLayers(); if (activeLayer === name) { activeLayer = layers[0].name; saveActiveLayer(); } return true; }
+function toggleLayerVisibility(name) { var l = layers.find(l => l.name === name); if (l) { l.visible = !l.visible; saveLayers(); } }
 
 // ===== DOM 元素 =====
 const $listItems = document.getElementById('list-items');
@@ -51,10 +70,10 @@ const $panelOverlay = document.getElementById('panel-overlay');
 
 // ===== 初始化 =====
 function init() {
+    loadLayers(); loadActiveLayer();
     initMap();
     loadEntries();
     bindEvents();
-    // 默认收起侧边栏，显示展开按钮
     document.getElementById('sidebar').classList.add('collapsed');
     document.getElementById('sidebar-toggle').classList.remove('hidden');
 }
@@ -111,13 +130,7 @@ function initMap() {
         div.onclick = function (e) {
             e.stopPropagation();
             markersVisible = !markersVisible;
-            for (var id in markers) {
-                if (markersVisible) {
-                    map.addLayer(markers[id]);
-                } else {
-                    map.removeLayer(markers[id]);
-                }
-            }
+            refreshAllMarkers();
             div.innerHTML = markersVisible ? '📍' : '📍';
             div.style.opacity = markersVisible ? '1' : '0.4';
         };
@@ -179,6 +192,17 @@ function initMap() {
     }
 }
 
+// ===== 刷新标记 =====
+function refreshAllMarkers() {
+    var visibleLayers = getVisibleLayerNames();
+    for (var id in markers) {
+        var entry = entries[id];
+        var shouldShow = markersVisible && visibleLayers.indexOf(entry.layerName) >= 0;
+        if (shouldShow) { if (!map.hasLayer(markers[id])) map.addLayer(markers[id]); }
+        else { if (map.hasLayer(markers[id])) map.removeLayer(markers[id]); }
+    }
+}
+
 // ===== 数据管理（Supabase） =====
 async function loadEntries() {
     const s = getDB();
@@ -206,6 +230,7 @@ async function loadEntries() {
                 date: row.date,
                 description: row.description || '',
                 photos: parsePhotos(row.photos),
+                layerName: row.layer_name || '我的游记',
                 createdAt: row.created_at,
                 updatedAt: row.updated_at,
             };
@@ -256,6 +281,7 @@ async function saveEntryToDB(entryData) {
         date: entryData.date,
         description: entryData.description || '',
         photos: packPhotos(entryData.photos),
+        layer_name: entryData.layerName || activeLayer,
         updated_at: new Date().toISOString(),
     }, { onConflict: 'id' });
 
@@ -284,11 +310,13 @@ function addMarkerToMap(id, entry) {
 
     const latlng = [entry.lat, entry.lng];
 
+    var color = getLayerColor(entry.layerName || '我的游记');
+
     const icon = L.divIcon({
         className: 'custom-marker',
         html: `<div style="
             width: 36px; height: 36px;
-            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            background: ${color};
             border: 3px solid #fff;
             border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
@@ -303,7 +331,8 @@ function addMarkerToMap(id, entry) {
     });
 
     const marker = L.marker(latlng, { icon });
-    if (markersVisible) {
+    var visibleLayers = getVisibleLayerNames();
+    if (markersVisible && visibleLayers.indexOf(entry.layerName || '我的游记') >= 0) {
         marker.addTo(map);
     }
 
@@ -320,7 +349,7 @@ function addMarkerToMap(id, entry) {
             ${imgHtml}
             <div class="popup-info">
                 <div class="popup-title">${escapeHtml(entry.title)}</div>
-                <div class="popup-date">📅 ${escapeHtml(entry.date)}</div>
+                <div class="popup-date">📅 ${escapeHtml(entry.date)} · ${escapeHtml(entry.layerName || '')}</div>
                 <div class="popup-desc">${escapeHtml(desc)}</div>
             </div>
             <button class="popup-action" data-entry-id="${id}">✏️ 查看 / 编辑</button>
@@ -505,6 +534,7 @@ async function saveEntry(e) {
                 date: $entryDate.value,
                 description: $entryDesc.value.trim(),
                 photos: [...tempPhotos],
+                layerName: entry.layerName,
                 createdAt: entry.createdAt || now,
                 updatedAt: now,
             };
@@ -523,6 +553,7 @@ async function saveEntry(e) {
                 date: $entryDate.value,
                 description: $entryDesc.value.trim(),
                 photos: [...tempPhotos],
+                layerName: activeLayer,
                 createdAt: now,
                 updatedAt: now,
             };
@@ -531,6 +562,7 @@ async function saveEntry(e) {
             addMarkerToMap(id, entry);
         }
 
+        refreshAllMarkers();
         renderList();
         hidePanel();
     } catch (err) {
@@ -562,7 +594,7 @@ async function deleteEntry() {
 
 // ===== 侧边栏列表 =====
 function renderList() {
-    const ids = Object.keys(entries);
+    const ids = Object.keys(entries).filter(id => (entries[id].layerName || '我的游记') === activeLayer);
 
     ids.sort((a, b) => {
         return (entries[b].updatedAt || entries[b].createdAt || '').localeCompare(
@@ -607,6 +639,57 @@ function renderList() {
             openEditEntry(id);
         });
     });
+    renderLayerSelector();
+}
+
+// ===== 图层选择器 UI =====
+function renderLayerSelector() {
+    var container = document.getElementById('layer-selector');
+    if (!container) return;
+
+    var html = '<select id="layer-dropdown" style="flex:1;padding:6px;border-radius:6px;border:1px solid #ddd;font-size:13px;background:#fff">';
+    layers.forEach(function (l) {
+        html += '<option value="' + escapeHtml(l.name) + '"' + (l.name === activeLayer ? ' selected' : '') + '>' + (l.visible ? '👁 ' : '  ') + escapeHtml(l.name) + '</option>';
+    });
+    html += '</select>';
+    html += '<button id="btn-toggle-layer" title="显隐图层" style="padding:6px 8px;border-radius:6px;border:1px solid #ddd;background:#fff;cursor:pointer;margin-left:3px">👁</button>';
+    html += '<button id="btn-new-layer" title="新建图层" style="padding:6px 8px;border-radius:6px;border:1px solid #ddd;background:#fff;cursor:pointer;margin-left:1px">+</button>';
+    html += '<button id="btn-del-layer" title="删除图层" style="padding:6px 8px;border-radius:6px;border:1px solid #ddd;background:#fff;cursor:pointer;margin-left:1px">🗑</button>';
+
+    container.innerHTML = html;
+
+    document.getElementById('layer-dropdown').addEventListener('change', function () {
+        activeLayer = this.value; saveActiveLayer(); renderList(); refreshAllMarkers();
+    });
+    document.getElementById('btn-toggle-layer').addEventListener('click', function () {
+        toggleLayerVisibility(activeLayer); refreshAllMarkers(); renderLayerSelector();
+    });
+    document.getElementById('btn-new-layer').addEventListener('click', function () {
+        var name = prompt('请输入新图层名称（如：张三的旅行、日本游记）：');
+        if (name && name.trim()) {
+            name = name.trim();
+            if (addLayer(name)) { activeLayer = name; saveActiveLayer(); renderLayerSelector(); renderList(); refreshAllMarkers(); }
+            else { alert('图层名已存在！'); }
+        }
+    });
+    document.getElementById('btn-del-layer').addEventListener('click', function () {
+        if (layers.length <= 1) { alert('至少保留一个图层！'); return; }
+        if (confirm('确定删除图层「' + activeLayer + '」？（标记不会被删除）')) {
+            if (deleteLayer(activeLayer)) { saveActiveLayer(); renderLayerSelector(); renderList(); refreshAllMarkers(); }
+        }
+    });
+}
+
+// ===== 图层颜色映射 =====
+var layerColorMap = {};
+var colorPalette = ['#ff6b6b,#ff8e8e', '#4ecdc4,#45b7d1', '#f9ca24,#f0932b', '#6c5ce7,#a29bfe', '#fd79a8,#e84393', '#00b894,#55efc4', '#e17055,#d63031', '#0984e3,#74b9ff', '#636e72,#b2bec3'];
+var colorIdx = 0;
+function getLayerColor(name) {
+    if (!layerColorMap[name]) {
+        layerColorMap[name] = 'linear-gradient(135deg,' + colorPalette[colorIdx % colorPalette.length] + ')';
+        colorIdx++;
+    }
+    return layerColorMap[name];
 }
 
 // ===== 事件绑定 =====
