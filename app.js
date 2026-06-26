@@ -42,7 +42,7 @@ function loadLayers() {
 function saveLayers() { localStorage.setItem('travel_journal_layers', JSON.stringify(layers)); }
 function loadActiveLayer() {
     activeLayer = localStorage.getItem('active_layer');
-    if (!activeLayer || !layers.find(l => l.name === activeLayer)) { activeLayer = layers[0].name; }
+    if (!activeLayer || activeLayer === 'null' || !layers.find(l => l.name === activeLayer)) { activeLayer = layers[0].name; }
 }
 function saveActiveLayer() { localStorage.setItem('active_layer', activeLayer); }
 function getVisibleLayerNames() { return layers.filter(l => l.visible).map(l => l.name); }
