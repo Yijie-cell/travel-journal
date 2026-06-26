@@ -685,9 +685,21 @@ function renderLayerSelector() {
             newName = newName.trim();
             if (layers.find(l => l.name === newName)) { alert('图层名已存在！'); return; }
             var oldName = activeLayer;
+            // 更新图层列表
             layers.find(l => l.name === oldName).name = newName;
+            // 更新所有属于该图层的标记
+            for (var id in entries) {
+                if ((entries[id].layerName || '我的游记') === oldName) {
+                    entries[id].layerName = newName;
+                }
+            }
             activeLayer = newName;
             saveLayers(); saveActiveLayer();
+            // 刷新所有标记颜色
+            for (var id in markers) { map.removeLayer(markers[id]); }
+            markers = {};
+            for (var id in entries) { addMarkerToMap(id, entries[id]); }
+            refreshAllMarkers();
             renderLayerSelector(); renderList();
         }
     });
