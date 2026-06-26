@@ -667,6 +667,7 @@ function renderLayerSelector() {
     });
     html += '</select>';
     html += '<button id="btn-toggle-layer" title="显隐图层" style="padding:6px 8px;border-radius:6px;border:1px solid #ddd;background:#fff;cursor:pointer;margin-left:3px">👁</button>';
+    html += '<button id="btn-rename-layer" title="重命名图层" style="padding:6px 8px;border-radius:6px;border:1px solid #ddd;background:#fff;cursor:pointer;margin-left:1px">✏️</button>';
     html += '<button id="btn-new-layer" title="新建图层" style="padding:6px 8px;border-radius:6px;border:1px solid #ddd;background:#fff;cursor:pointer;margin-left:1px">+</button>';
     html += '<button id="btn-del-layer" title="删除图层" style="padding:6px 8px;border-radius:6px;border:1px solid #ddd;background:#fff;cursor:pointer;margin-left:1px">🗑</button>';
 
@@ -677,6 +678,18 @@ function renderLayerSelector() {
     });
     document.getElementById('btn-toggle-layer').addEventListener('click', function () {
         toggleLayerVisibility(activeLayer); refreshAllMarkers(); renderLayerSelector();
+    });
+    document.getElementById('btn-rename-layer').addEventListener('click', function () {
+        var newName = prompt('将「' + activeLayer + '」重命名为：', activeLayer);
+        if (newName && newName.trim() && newName.trim() !== activeLayer) {
+            newName = newName.trim();
+            if (layers.find(l => l.name === newName)) { alert('图层名已存在！'); return; }
+            var oldName = activeLayer;
+            layers.find(l => l.name === oldName).name = newName;
+            activeLayer = newName;
+            saveLayers(); saveActiveLayer();
+            renderLayerSelector(); renderList();
+        }
     });
     document.getElementById('btn-new-layer').addEventListener('click', function () {
         var name = prompt('请输入新图层名称（如：张三的旅行、日本游记）：');
