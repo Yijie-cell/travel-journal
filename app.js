@@ -27,8 +27,8 @@ function getDB() {
 let map;
 let markers = {};
 let entries = {};
-let markersVisible = true;
-let elevationMode = false;   // 海拔查询模式
+let markersVisible = false;  // 默认隐藏标记点
+let elevationMode = false;
 let currentEntryId = null;
 let pendingLatLng = null;
 
@@ -54,6 +54,9 @@ function init() {
     initMap();
     loadEntries();
     bindEvents();
+    // 默认收起侧边栏，显示展开按钮
+    document.getElementById('sidebar').classList.add('collapsed');
+    document.getElementById('sidebar-toggle').classList.remove('hidden');
 }
 
 // ===== 地图初始化 =====
@@ -103,7 +106,8 @@ function initMap() {
     toggleBtn.onAdd = function () {
         var div = L.DomUtil.create('div', 'marker-toggle-btn');
         div.innerHTML = '📍';
-        div.title = '隐藏标记点';
+        div.title = '显示标记点';
+        div.style.opacity = '0.4';
         div.onclick = function (e) {
             e.stopPropagation();
             markersVisible = !markersVisible;
