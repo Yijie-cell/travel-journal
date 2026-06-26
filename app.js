@@ -272,20 +272,35 @@ async function saveEntryToDB(entryData) {
         return true;
     }
 
-    const { error } = await s.from('entries').upsert({
-        id: entryData.id,
-        title: entryData.title,
-        lat: entryData.lat,
-        lng: entryData.lng,
-        date: entryData.date,
-        description: entryData.description || '',
-        photos: packPhotos(entryData.photos),
-        layer_name: entryData.layerName || activeLayer,
-        updated_at: new Date().toISOString(),
-    }, { onConflict: 'id' });
-
-    if (error) throw error;
-    return true;
+    // 尝试带 layer_name 保存
+    try {
+        const { error } = await s.from('entries').upsert({
+            id: entryData.id,
+            title: entryData.title,
+            lat: entryData.lat,
+            lng: entryData.lng,
+            date: entryData.date,
+            description: entryData.description || '',
+            photos: packPhotos(entryData.photos),
+            layer_name: entryData.layerName || activeLayer,
+            updated_at: new Date().toISOString(),
+        }, { onConflict: 'id' });
+        if (!error) return true;
+        // 如果 layer_name 列不存在，回退
+        if (error.message && error.message.includes('layer_name')) {
+            const { error: err2 } = await s.from('entries').upsert({
+                id: entryData.id, title: entryData.title, lat: entryData.lat, lng: entryData.lng,
+                date: entryData.date, description: entryData.description || '',
+                photos: packPhotos(entryData.photos),
+                updated_at: new Date().toISOString(),
+            }, { onConflict: 'id' });
+            if (err2) throw err2;
+            return true;
+        }
+        throw error;
+    } catch (err) {
+        throw err;
+    }
 }
 
 async function deleteEntryFromDB(id) {
