@@ -226,6 +226,11 @@ async function loadEntries() {
 
         entries = {};
         (data || []).forEach(row => {
+            var ln = row.layer_name || '我的游记';
+            // 自动发现图层：云端标记所属图层本地没有就自动创建
+            if (!layers.find(function (l) { return l.name === ln; })) {
+                layers.push({ name: ln, visible: true });
+            }
             entries[row.id] = {
                 id: row.id,
                 lat: row.lat,
@@ -234,12 +239,13 @@ async function loadEntries() {
                 date: row.date,
                 description: row.description || '',
                 photos: parsePhotos(row.photos),
-                layerName: row.layer_name || '我的游记',
+                layerName: ln,
                 createdAt: row.created_at,
                 updatedAt: row.updated_at,
             };
             addMarkerToMap(row.id, entries[row.id]);
         });
+        saveLayers(); // 持久化自动发现的图层
 
         renderList();
     } catch (err) {
@@ -255,7 +261,15 @@ function loadFromLocalStorage() {
     } catch (e) {
         entries = {};
     }
-    Object.keys(entries).forEach(id => addMarkerToMap(id, entries[id]));
+    Object.keys(entries).forEach(id => {
+        var ln = entries[id].layerName || '我的游记';
+        entries[id].layerName = ln;
+        if (!layers.find(function (l) { return l.name === ln; })) {
+            layers.push({ name: ln, visible: true });
+        }
+        addMarkerToMap(id, entries[id]);
+    });
+    saveLayers();
     renderList();
 }
 
