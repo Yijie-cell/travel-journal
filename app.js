@@ -120,6 +120,9 @@ function initMap() {
     };
     toggleBtn.addTo(map);
 
+    // 比例尺（右下角）
+    L.control.scale({ position: 'bottomright', metric: true, imperial: false }).addTo(map);
+
     map.on('click', function (e) {
         openNewEntry(e.latlng);
     });
