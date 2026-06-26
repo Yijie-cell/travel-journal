@@ -29,7 +29,6 @@ let markers = {};
 let entries = {};
 let layers = [];
 let activeLayer = '';
-let activeLayer = '';
 let markersVisible = false;  // 默认隐藏标记点
 let elevationMode = false;
 let currentEntryId = null;
